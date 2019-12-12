@@ -3,12 +3,11 @@
 		<p class="title" v-show="showAlbum">总体规划</p>
 		<div v-bind:class="showAlbum ? 'container show' : 'container hidden'">
 			<div id="rotate-container"
-			     :style="{transform: transform}"
+			     :style="{transform: transform,animationPlayState: playState}"
 			     class="container">   <!-- 相册容器 -->
 				<div v-for="(v, i) of images" :key="i"
 				     v-bind:class="'img ' + v.class"
-				     @click="clickImg(v.index)"
-				     :style="{animationPlayState: playState}"></div>
+				     @click="clickImg(v.index)"></div>
 			</div>
 		</div>
 		<v-info v-bind:class="!showAlbum ? ' ' : 'info-hidden'"
@@ -74,7 +73,6 @@
 				});
 				$("html").mousemove((e) => {
 					if (isdown) {
-						console.log(e.clientX - oldX);
 						this.transform = `rotateX(0deg) rotateY(${e.clientX - oldX}deg)`;
 					}
 				});
@@ -83,6 +81,25 @@
 					isdown = false;
 					oldX = null;
 				});
+				
+				const container = document.getElementById("rotate-container");
+				container.addEventListener('touchstart', (e) => {
+					this.playState = 'paused';
+					isdown = true;
+					const touch = e.targetTouches[0];
+					oldX = touch.clientX;
+				}, false);
+				container.addEventListener('touchmove', (e) => {
+					const touch = e.targetTouches[0];
+					if (isdown) {
+						this.transform = `rotateX(0deg) rotateY(${touch.clientX - oldX}deg)`;
+					}
+				}, false);
+				container.addEventListener('touchend', (e) => {
+					this.playState = 'running';
+					isdown = false;
+					oldX = null;
+				}, false);
 			},
 			clickImg(i) {
 				this.type = i;
@@ -109,6 +126,7 @@
 		height: 100%;
 		background-image: url("../../../public/bg3.png");
 		background-size: 100% 100%;
+		overflow: hidden;
 		.title {
 			position: absolute;
 			top: 50px;
@@ -164,6 +182,8 @@
 	.img {
 		width: 420px;
 		height: 700px;
+		/*width: 30%;*/
+		/*height: 30%;*/
 		text-align: center;
 		position: absolute;
 		margin-top: 8%;
