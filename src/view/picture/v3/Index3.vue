@@ -36,10 +36,22 @@
         v-bind="dragOptions" 
         class="line list-group" 
         tag="ul"
-        v-model="pictures" group="people" @start="drag=true" @end="drag=false">
-        <v-item v-for="(item, i) of pictures" :key="i" 
-          :img="item" :width="width" :height="height" 
-          :checkedIds="checkedIds" :style="item.gridStyle" @click="click"/>
+        v-model="pictures" 
+        group="people"
+        :move="dragMove"
+        @change="dragEnd"
+        @start="drag=true" 
+        @end="drag=false">
+        <v-item v-for="(item, i) of pictures" 
+          :key="i" 
+          :img="item" 
+          :width="width" 
+          :height="height" 
+          :checkedIds="checkedIds" 
+          :style="item.gridStyle" 
+          :drag="drag"
+          :timestamp="timestamp"
+          @click="click"/>
       </draggable>
     </div>
   </div>
@@ -50,7 +62,6 @@
   import vItem from './Item3';
   // import config from '../../../../public/config';
   // const users = config;
-  console.log(users);
   export default {
     components: {
       vItem,
@@ -58,8 +69,8 @@
     },
     data() {
       return {
-        playVideo: false,
-        drag: true,
+        playVideo: true,
+        drag: false,
         hasDrag: true,
         pictures: [], 
         array: [],
@@ -70,12 +81,12 @@
         timer: null,
         operationDate: 0,
         style: '',
+        timestamp: new Date().getTime(),
       }
     },
     mounted() {
       this.initData();
       this.$msg.$on('message-iat' , (res) => {
-        console.log(res);
         this.operationDate = new Date().getTime();
         this.iatStart(res);
       });
@@ -100,7 +111,6 @@
     },
     watch: {
       pictures: function(v) {
-        // console.log(v);
         for (let i = 0; i < v.length; i++) {
           if (i > 90) {
             v[i].id = i + 1;
@@ -130,6 +140,7 @@
             type: 1,
             center: i,
             click: true,
+            status: 0, // 0 正常，1放大，2缩小
             ...users[i],
           };
           if (i === 90) {
@@ -137,16 +148,20 @@
             pic.gridStyle = 'grid-column: 7 / span 2;grid-row: 7;';
             pic.smallSrc = './picture/audio.png';
             pic.click = false;
-          } else {
-            // if (i % 2 === 0) {
-            //   pic.src = src;
-            // } else {
-            //   pic.src = imgSrc;
-            // }
           }
           ++i;
           this.pictures.push(pic);
         }
+      },
+      dragMove(v) {
+        const next = v.relatedContext.element;
+        const old = v.draggedContext.element;
+        const oldIndex = this.checkedIds.indexOf(old.id);
+        const nextIndex = this.checkedIds.indexOf(next.id);
+        this.checkedIds = [next.id];
+      },
+      dragEnd() {
+        this.timestamp = new Date().getTime();
       },
       click(img) {
         this.operationDate = new Date().getTime();

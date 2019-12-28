@@ -7,7 +7,6 @@
 <template>
   <div class="item-pic" >
     <div class="layout">
-      <!-- <img  class="img" :src="item.src" @click="click" :style="item.style" /> -->
       <img v-show="status !== 1"
         class="img" 
         :id="item.id" 
@@ -43,7 +42,7 @@ import { throttle } from '../../../util/function';
 // let recorder = new Recorder();
 
 export default {
-  props: [ 'img', 'width', 'height', 'checkedIds' ],
+  props: [ 'img', 'width', 'height', 'checkedIds', 'drag', 'timestamp' ],
   data() {
     return {
       status: 0, // 0 正常，1放大，2缩小
@@ -59,15 +58,23 @@ export default {
     img(v) {
       this.item = v;
     },
+    timestamp() {
+      if (this.checkedIds.indexOf(this.item.id) > -1) {
+        this.status = 1;
+        this.scale = '5';
+      }
+    },
     checkedIds(v) {
-      let min = 10;
+      let min = 100;
       for (const id of this.checkedIds) {
         const distance = this.matrixDistance(this.item.id, id);
         min = distance < min ? distance : min;
-      }
+      } 
       if (min === 0) {
-        this.status = 1;
-        this.scale = '5';
+        if (!(this.drag && this.item.id === v[0])) {
+          this.status = 1;
+          this.scale = '5';
+        }
       } else if (min < 1.3) {
         this.status = 2;
         this.scale = '05';
@@ -75,21 +82,23 @@ export default {
         this.status = 2;
         this.scale = '08';
       } else {
-        if (this.status === 0) {
-          this.item.style = `position: absolute;transform: scale(1);z-index:10;`;
-        } else {
-          this.status = 0;
-          this.scale = '1';
-        } 
+        this.status = 0;
+        this.scale = '1';
       }
     },
     scale(v, old) {
+      if (v === '5' && old === '05') {
+        console.log(v, old, this.status);
+      }
       const animation = `status${old}_${v}`;
       if (this.status === 1) {
         this.item.style = `position: absolute;animation: ${animation} 1s forwards`;
       } else {
         this.item.style = `position: absolute;transform-origin: ${this.x} ${this.y};animation: ${animation} 1s forwards`;
       }
+    },
+    status(v) {
+      
     },
   },
   mounted() {
@@ -190,6 +199,16 @@ body::-webkit-scrollbar {
     z-index: 9;
   }
 }
+@keyframes status08_1 {
+  0% {
+    transform: scale(0.7);
+    z-index: 1;
+  }
+  100% {
+    transform: scale(1);
+    z-index: 9;
+  }
+}
 @keyframes status05_5 {
   0% {
     transform: scale(0.4) rotate(0);
@@ -210,14 +229,40 @@ body::-webkit-scrollbar {
     z-index: 100;
   }
 }
-@keyframes status08_1 {
+@keyframes status05_08 {
   0% {
-    transform: scale(0.7);
-    z-index: 1;
+    transform: scale(0.4);
   }
   100% {
-    transform: scale(1);
-    z-index: 9;
+    transform: scale(0.7);
+  }
+}
+@keyframes status08_05 {
+  0% {
+    transform: scale(0.7);
+  }
+  100% {
+    transform: scale(0.4);
+  }
+}
+@keyframes status5_05 {
+  0% {
+    transform: scale(3) rotate(360deg);
+    z-index: 100;
+  }
+  100% {
+    transform: scale(0.4) rotate(0);
+    z-index: 10;
+  }
+}
+@keyframes status5_08 {
+  0% {
+    transform: scale(3) rotate(360deg);
+    z-index: 100;
+  }
+  100% {
+    transform: scale(0.7) rotate(0);
+    z-index: 10;
   }
 }
 .ellipsis {
