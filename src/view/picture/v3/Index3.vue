@@ -1,20 +1,27 @@
 <!--
  * @Author: Porco
  * @Date: 2019-11-20 13:49:02
- * @LastEditTime: 2019-12-12 19:08:37
+ * @LastEditTime: 2019-12-12 22:39:42
  * @Description: 请填写文件注释
  -->
 <template>
   <div class="picture">
-    <div class="layout">
+    <video v-if="playVideo"
+    autoplay
+    class="video"
+    loop="loop" @click="clickVideo">
+    <source src="test.mp4" type="video/mp4" />
+      您的浏览器不支持 video 标签。
+    </video>
+    <div v-show="!playVideo" class="layout" :style="style">
       <!-- <div v-for="(item, i) of pictures" :key="i" class="item" @click="click(item)">
         <img class="img" :src="item.src" :style="item.style"/>
       </div> -->
-      <draggable v-show="hasDrag" 
-      v-bind="dragOptions" 
-      class="line list-group" 
-      tag="ul"
-      v-model="pictures" group="people" @start="drag=true" @end="drag=false">
+      <!-- <draggable v-show="hasDrag" 
+        v-bind="dragOptions" 
+        class="line list-group" 
+        tag="ul"
+        v-model="pictures" group="people" @start="drag=true" @end="drag=false">
         <v-item v-for="(item, i) of pictures" :key="i" 
           :img="item" :width="width" :height="height" 
           :checkedIds="checkedIds" :style="item.gridStyle" @click="click"/>
@@ -23,14 +30,27 @@
         <v-item v-for="(item, i) of pictures" :key="i" 
           :img="item" :width="width" :height="height" 
           :checkedIds="checkedIds" :style="item.gridStyle" @click="click"/>
-      </div>
+      </div> -->
+
+      <draggable
+        v-bind="dragOptions" 
+        class="line list-group" 
+        tag="ul"
+        v-model="pictures" group="people" @start="drag=true" @end="drag=false">
+        <v-item v-for="(item, i) of pictures" :key="i" 
+          :img="item" :width="width" :height="height" 
+          :checkedIds="checkedIds" :style="item.gridStyle" @click="click"/>
+      </draggable>
     </div>
   </div>
 </template>
 <script>
   import draggable from 'vuedraggable';
   import _ from 'lodash';
-  import vItem from './Item';
+  import vItem from './Item3';
+  // import config from '../../../../public/config';
+  // const users = config;
+  console.log(users);
   export default {
     components: {
       vItem,
@@ -38,6 +58,7 @@
     },
     data() {
       return {
+        playVideo: false,
         drag: true,
         hasDrag: true,
         pictures: [], 
@@ -46,14 +67,26 @@
         width: 14,
         height: 7,
         checkedIds: [],
+        timer: null,
+        operationDate: 0,
+        style: '',
       }
     },
-    created() {
+    mounted() {
       this.initData();
       this.$msg.$on('message-iat' , (res) => {
         console.log(res);
+        this.operationDate = new Date().getTime();
         this.iatStart(res);
       });
+      // this.timer = setInterval(() => {
+      //   if (new Date().getTime() > this.operationDate + maxLength) {
+      //     this.playVideo = true;
+      //   }
+      // }, 1000);
+    },
+    destroyed() {
+      clearInterval(this.timer);
     },
     computed: {
       dragOptions() {
@@ -77,22 +110,17 @@
         }
       },
       checkedIds(v) {
-        
+        this.operationDate = new Date().getTime();
+      },
+      drag(v) {
+        this.operationDate = new Date().getTime();
+      },
+      operationDate(v) {
+        this.playVideo = false;
       },
     },
     methods: {
       initData() {
-        const imgSrc = './picture/0.jpeg';
-        const src = './picture/2.jpg';
-        const picture = {
-          name: '程开甲',
-          date: '1918.8—2018.11',
-          title: '中国核武器研究开创者',
-          title2: '中国科学院院士',
-          title3: '物理学家，核武器技术专家，两弹一星元勋',
-          context: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;程开甲，江苏吴江人，祖籍徽州，1980年当选中国科学院学部委员（院士）。“两弹一星”功勋奖章获得者，我国核武器事业的开拓者之一，我国核试验科学技术体系的创建者之一，中国人民解放军总装备部科技委顾问。曾任浙江大学、南京大学教授，第二机械工业部核武器研究所副所长，国防科工委核实验基地研究所副所长、所长及基地副司令员，国防科工委（总装备部）科技委常委、顾问。</br>' +
-           '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;程开甲是中国核武器研究的开创者之一，在核武器的研制和试验中作出突出贡献，开创、规划、领导了抗辐射加固技术新领域研究，是中国定向能高功率微波研究新领域的开创者之一。出版了中国第一本固体物理学专著，提出了普遍的热力学内耗理论，导出了狄拉克方程，提出并发展了超导电双带理论和凝聚态TFDC电子理论。'
-        }
         let i = 0;
         const array = [];
         while (i < 98) {
@@ -102,25 +130,26 @@
             type: 1,
             center: i,
             click: true,
-            ...picture,
+            ...users[i],
           };
           if (i === 90) {
             ++i;
             pic.gridStyle = 'grid-column: 7 / span 2;grid-row: 7;';
-            pic.src = './picture/audio.png';
+            pic.smallSrc = './picture/audio.png';
             pic.click = false;
           } else {
-            if (i % 2 === 0) {
-              pic.src = src;
-            } else {
-              pic.src = imgSrc;
-            }
+            // if (i % 2 === 0) {
+            //   pic.src = src;
+            // } else {
+            //   pic.src = imgSrc;
+            // }
           }
           ++i;
           this.pictures.push(pic);
         }
       },
       click(img) {
+        this.operationDate = new Date().getTime();
         const target = this.getTarget(img);
         const resImg = this.swap(img, target);
         this.changeIds(target);
@@ -140,6 +169,14 @@
             target = this.pictures[v];
           }
         }
+        const array = [];
+        for (const v of this.checkedIds) {
+          const res = this.distance(target.id, v);
+          if (res >= 2) {
+            array.push(v);
+          }
+        }
+        this.checkedIds = array;
         return target;
       },
       distance(point1, point2) {
@@ -177,26 +214,51 @@
       iatStart(str) {
         if (!str || str.length === 0) return;
         for (const v of this.pictures) {
-          if (v.name.indexOf(str) >  -1 || str.indexOf(v.name) > -1) {
+          if (v.name.indexOf(str) >  -1 || str.indexOf(v.name) > -1 || (v.tags && v.tags.indexOf(str)) > -1) {
             this.click(v);
             break;
           }
         }
       },
+      clickVideo() {
+        this.operationDate = new Date().getTime();
+      },
     }
   }
 </script>
 <style lang="scss" scoped>
-.flip-list-move {
-  transition: transform 0.5s;
+@keyframes layout {
+  0% {
+    transform: scale(0) rotate(0);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+html {
+  height: 100%;
+  width: 100%;
+}
+body {
+  height: 100%;
+  width: 100%;
+}
+video {
+  height: 100%;
+  width: 100%;
 }
 .picture {
   height: 100%;
   width: 100%;
   background-color: #000;
+  .video {
+    height: 100%;
+    width: 100%;
+  }
   .layout {
     height: 100%;
     background-color: #000;
+    animation: layout 1s forwards;
     .line {
       overflow: hidden;
       height: 100%;

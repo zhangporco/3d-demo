@@ -13,30 +13,18 @@ const index = new Router({
 			path: '/',
 			redirect: '/picture',
 		},
-		// {
-		// 	path: '/map',
-		// 	component: () => import('./view/map/Index.vue'),
-		// },
-		// {
-		// 	path: '/album', // 3d 旋转 相册
-		// 	component: () => import('./view/album/Index3.vue'), 
-		// },
-		// {
-		// 	path: '/album-info', // 3d 旋转 相册
-		// 	component: () => import('./view/album/Info.vue'),
-		// },
 		{
-			path: '/picture', // 3d 旋转 相册
+			path: '/picture',
 			component: () => import('./view/picture/v3/Index3.vue'),
 		},
 		{
-			path: '/test/1', // 3d 旋转 相册
-			component: () => import('./view/test/Index1.vue'),
+			path: '/test/iat',
+			component: () => import('./view/test/Iat.vue'),
 		},
-		// {
-		// 	path: '/audio', // 3d 旋转 相册
-		// 	component: () => import('./view/picture/v3/audio/Audio.vue'),
-		// },
+		{
+			path: '/test/triangle',
+			component: () => import('./view/test/Triangle.vue'),
+		},
 	]
 });
 

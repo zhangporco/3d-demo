@@ -1,7 +1,7 @@
 <!--
  * @Author: Porco
  * @Date: 2019-12-01 22:13:43
- * @LastEditTime: 2019-12-12 12:35:47
+ * @LastEditTime: 2019-12-13 08:20:53
  * @Description: 请填写文件注释
  -->
 <template>
@@ -11,20 +11,24 @@
       <img v-show="status !== 1"
         class="img" 
         :id="item.id" 
-        :src="item.src" 
+        :src="item.smallSrc" 
         @click="click" 
         :style="item.style" 
         @mousedown="mousedown" 
-        @mouseup="mouseup"/>
+        @touchstart="mousedown"
+        @mouseup="mouseup"
+        @touchend="mouseup"/>
       <div v-show="status === 1" class="big-layout" :style="item.style">
-        <div class="title ellipsis">{{item.title}}</div>
-        <img class="img1" :src="item.src" />
-        <div class="name ellipsis">{{item.name}}</div>
-        <div class="title2 ellipsis">{{item.title2}}</div>
-        <div class="title3">{{item.title3}}</div>
-        <div class="context" v-html="item.context"></div>
-        <div class="btn t1" @click="play"></div>
-        <div class="btn t2" @click="click"></div>
+        <div class="internal">
+          <div class="title ellipsis">{{item.title}}</div>
+          <img class="img1" :src="item.bigSrc" />
+          <div class="name ellipsis">{{item.name}}</div>
+          <div class="title2 ellipsis">{{item.title2}}</div>
+          <div class="title3">{{item.title3}}</div>
+          <div class="context" v-html="item.context"></div>
+          <div class="btn t1" @click="play"></div>
+          <div class="btn t2" @click="click"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -45,7 +49,6 @@ export default {
       status: 0, // 0 正常，1放大，2缩小
       once: 1,
       item: this.img,
-      src: this.img.src,
       x: 'center',
       y: 'center',
       scale: 1,
@@ -85,6 +88,9 @@ export default {
     },
   },
   mounted() {
+    // document.oncontextmenu = function (event) {
+    //   event.preventDefault();
+    // };
     this.iat = new IatTaste();
   },
   methods: {
@@ -95,15 +101,16 @@ export default {
       }
     },
     mousedown() {
+      // event.preventDefault();
       if (!this.item.click) {
         this.iat.start();
-        this.item.src = './picture/audio-start.png';
+        this.item.smallSrc = './picture/audio-start.png';
       }
     },
     mouseup() {
       if (!this.item.click) {
         this.iat.stop();
-        this.item.src = this.src;
+        this.item.smallSrc = './picture/audio.png';
       }
     },
     matrixDistance(point1, point2) {
@@ -147,14 +154,17 @@ export default {
 }
 </script>
 <style lang="scss">
+body::-webkit-scrollbar {
+  display: none;
+}
 @keyframes status01 {
   0% {
     transform: scale(1);
     z-index: 10;
   }
   100% {
-    transform: scale(3);
-    opacity: 1;
+    transform: scale(5);
+    // opacity: 1;
     z-index: 100;
   }
 }
@@ -165,43 +175,43 @@ export default {
   }
   100% {
     transform: scale(1);
-    opacity: 1;
+    // opacity: 1;
     z-index: 10;
   }
 }
 @keyframes status02 {
   0% {
     transform: scale(1);
-    opacity: 1;
+    // opacity: 1;
     z-index: 10;
   }
   100% {
     transform: scale(0.5);
-     opacity: 0.5;
+    // opacity: 0.5;
     z-index: 1;
   }
 }
 @keyframes status20 {
   0% {
     transform: scale(0.5);
-    opacity: 0.5;
+    // opacity: 0.5;
     z-index: 1;
   }
   100% {
     transform: scale(1);
-    opacity: 1;
+    // opacity: 1;
     z-index: 9;
   }
 }
 @keyframes status21 {
   0% {
     transform: scale(0.5);
-    opacity: 0.5;
+    // opacity: 0.5;
     z-index: 1;
   }
   100% {
     transform: scale(3);
-    opacity: 1;
+    // opacity: 1;
     z-index: 100;
   }
 }
@@ -226,54 +236,63 @@ export default {
       margin: 5% 5%;
     }
     .big-layout {
+      border-radius: 50%;
       width: 100%;
-      height: 135%;
-      background-image: url("../../../../public/picture/base.jpeg");
-      background-repeat: no-repeat;
-      background-position: 0 center;
-      background-size: 100% 100%;
+      height: 100%;
+      background:rgba(255,255,255,0.1);
+      .internal {
+        width: 60%;
+        height: 75%;
+        opacity: 1;
+        margin: auto;
+        margin-top: 18%;
+        background-image: url("../../../../public/picture/base.jpeg");
+        background-repeat: no-repeat;
+        background-position: 0 center;
+        background-size: 100% 100%;
+      }
       .title {
         position: absolute;
         left: 34%;
-        top: 1%;
+        top: 16%;
         /* max-width: 170px; */
         color: #3a8599;
         font-size: 12px;
-        /* transform: scale(0.3);*/
+        transform: scale(0.8);
       }
       .img1 {
-        height: 54%;
-        width: 75%;
+        height: 41%;
+        width: 45%;
         position: absolute;
-        top: 7%;
-        left: 14%;
+        top: 21%;
+        left: 28%;
       }
       .name {
         position: absolute;
-        left: 16%;
-        top: 63%;
+        left: 27%;
+        top: 61%;
         /* max-width: 170px; */
         color: #fff;
         font-size: 17px;
-        /* transform: scale(0.5); */
+        transform: scale(0.6);
       }
       .title2 {
         position: absolute;
-        left: 52%;
-        top: 64%;
+        left: 43%;
+        top: 62%;
         max-width: 170px;
         color: #fff;
         font-size: 12px;
-        /* transform: scale(0.2); */
+        transform: scale(0.6);
       }
       .title3 {
         position: absolute;
-        left: 10%;
-        top: 68%;
+        left: 14%;
+        top: 66%;
         max-width: 170px;
         color: #fff;
         font-size: 12px;
-        transform: scale(0.8);
+        transform: scale(0.5);
         text-overflow: ellipsis;
         white-space: nowrap;
       }
@@ -281,12 +300,13 @@ export default {
         position: relative;
         color: #3a8599;
         font-size: 12px;
-        /* transform: scale(0.2); */
-        height: 18%;
-        width: 80%;
-        top: 73%;
-        left: 12%;
+        transform: scale(0.6);
+        height: 29%;
+        width: 129%;
+        top: 67%;
+        left: -13%;
         overflow-y: auto;
+        overflow-x: hidden;
       }
       .btn {
         position: absolute;
@@ -296,11 +316,11 @@ export default {
       }
       .t1 {
         left: 36%;
-        top: 94%;
+        top: 85%
       }
       .t2 {
         left: 51%;
-        top: 94%;
+        top: 85%
       }
     }
   }

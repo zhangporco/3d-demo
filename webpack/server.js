@@ -12,7 +12,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const BUILD_DIR = path.resolve(__dirname, '../dist');
 const PUBLIC_DIR = path.resolve(__dirname, '../public');
-const PORT = 8081;
+const PORT = 8088;
 
 module.exports = function () {
 	return {
@@ -25,7 +25,7 @@ module.exports = function () {
 		devServer: {
 			contentBase: PUBLIC_DIR,
 			host: '0.0.0.0',
-			open: false,
+			open: true,
 			port: PORT,
 			inline: true,
 		},
