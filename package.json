@@ -18,7 +18,7 @@
     "jquery": "^3.4.1",
     "js-audio-recorder": "^0.5.3",
     "lodash": "^4.17.15",
-    "three": "^0.104.0",
+    "three": "^0.137.0",
     "vue": "^2.6.10",
     "vue-router": "^3.0.7",
     "vuedraggable": "^2.23.2"
